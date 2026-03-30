@@ -1,0 +1,15 @@
+{
+  "name": "invoice",
+  "description": "Construction invoice analysis toolkit: draw auditing, PDF extraction, line matching, data cleanup, and email drafting",
+  "version": "1.0.0",
+  "author": {
+    "name": "Scott Silver"
+  },
+  "keywords": [
+    "construction",
+    "invoice",
+    "draw-request",
+    "audit",
+    "contractor"
+  ]
+}
