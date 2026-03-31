@@ -21,21 +21,87 @@ Your job is to extract, verify, and audit all of this so the homeowner can make 
 
 ## Expected Inputs
 
-This skill is optimized for **two files uploaded together**:
-1. **The draw request PDF** — the monthly invoice from the GC with supporting sub-invoices
-2. **The actuals spreadsheet (.xlsx)** — the master budget tracking workbook
+The preferred input is a **zip file** containing everything for the draw. When the user provides a zip:
 
-The actuals spreadsheet is project-specific. Look for an .xlsx file alongside the draw PDF. Common sheet names and their purposes:
+1. **Extract it** to a temporary directory using Python's `zipfile` module
+2. **Auto-detect the contents** by scanning for file types:
+   - `.pdf` files — the draw request and/or standalone invoices
+   - `.xlsx` / `.xls` files — the actuals spreadsheet
+   - `.md` files — project context
+   - `.jpg` / `.png` / `.gif` files — photographed receipts
+3. **Identify the draw request PDF** — usually the largest PDF, or the one with "draw" / "request" / the GC name in the filename. If ambiguous, ask.
+4. **Identify the actuals spreadsheet** — look for "actuals" / "budget" / "cost" in the filename, or the `.xlsx` file
+5. **Load project context** — if a `.md` file is present (e.g., `project-context.md`), read it first
+
+The skill also works with **individual files** pointed to directly (backward compatible):
+- A draw request PDF on its own (Steps 1-6 only)
+- A draw request PDF + actuals spreadsheet (full analysis including Steps 7-9)
+- A single vendor invoice (simplified analysis — math check, flag anomalies, no budget cross-ref)
+
+**The actuals spreadsheet is optional.** Many users won't have one, especially for non-construction invoices (property management, vendors billed directly). If no spreadsheet is found in the zip or working directory, skip Steps 7-9 and produce the report with Steps 1-6 only. Do not ask for it — just note in the report that budget cross-referencing was skipped because no actuals were provided.
+
+### Zip file conventions
+
+The zip can be flat (all files at the root) or have a single top-level directory. Either works. Common layouts:
+
+```
+feb-2026-draw.zip
+├── Silver Remodel February 2026 Draw Request.pdf
+├── Silver Remodel Actuals.xlsx
+└── project-context.md
+```
+
+or just:
+
+```
+invoice-review.zip
+├── draw.pdf
+└── actuals.xlsx
+```
+
+### Actuals spreadsheet
+
+The actuals spreadsheet is project-specific. Common sheet names and their purposes:
 - **Cost Codes**: Master budget tracker with columns for Cost Code ID, Description, OG Budget, Revised Budget, monthly draw columns, Invoiced Work To Date, Remaining Cost to Complete, Estimated Total, Variance columns
 - **Scope**: Remaining work items by cost code with notes on what's left
 - **CO Log**: Change order log
 - **Notes/Costs**: Supplementary cost breakdowns for large items
 
-Look for a **project-context file** (e.g., `project-context.md`) in the working directory. This file contains project-specific details like GC name, contacts, cost code mappings, Builder's Comp rate, and special billing rules. If found, load it before processing the draw.
+### Project context
+
+Look for a **project-context file** (e.g., `project-context.md`) in the zip or working directory. This file contains project-specific details like GC name, contacts, cost code mappings, Builder's Comp rate, and special billing rules. If found, load it before processing the draw.
 
 If only the draw PDF is uploaded, perform Steps 1-6. If the actuals spreadsheet is also available, additionally perform Steps 7-9 for the budget cross-reference analysis.
 
 ## Workflow
+
+### Step 0: Extract Zip (if applicable)
+
+If the user provided a zip file:
+
+```python
+import zipfile, tempfile, os
+
+tmpdir = tempfile.mkdtemp(prefix="draw_audit_")
+with zipfile.ZipFile(zip_path, 'r') as z:
+    z.extractall(tmpdir)
+
+# Find files by extension
+pdfs = []
+spreadsheets = []
+context_files = []
+for root, dirs, files in os.walk(tmpdir):
+    for f in files:
+        full = os.path.join(root, f)
+        if f.lower().endswith('.pdf'):
+            pdfs.append(full)
+        elif f.lower().endswith(('.xlsx', '.xls')):
+            spreadsheets.append(full)
+        elif f.lower().endswith('.md'):
+            context_files.append(full)
+```
+
+Pick the draw PDF (largest PDF or best filename match), the actuals spreadsheet, and any context file. Then proceed to Step 1.
 
 ### Step 1: Read the PDF
 
