@@ -1,5 +1,5 @@
 ---
-name: draw-analyzer
+name: invoice-analyzer
 description: "Analyze and audit monthly construction draw requests from a general contractor. Use this skill whenever the user uploads a contractor draw request PDF, monthly construction invoice, builder's cost draw, or any pay application from their GC. Also trigger when the user mentions 'draw request', 'draw analysis', 'builder invoice', 'construction invoice audit', 'verify the draw', 'check the draw', 'monthly draw', or anything about reviewing what their contractor billed. This skill extracts every line item, verifies all math, flags anomalies (missing invoice numbers, out-of-period dates, unmatched credits, builder's comp errors), and produces a structured audit report. Even if the user just says 'look at this invoice' and it's a multi-page construction draw PDF, use this skill."
 ---
 

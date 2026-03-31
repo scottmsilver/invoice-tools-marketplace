@@ -36,7 +36,7 @@ Turn structured audit findings into a professional email to the general contract
 ## Input
 
 The skill expects:
-1. **Audit findings** from the draw-analyzer or manual review
+1. **Audit findings** from the invoice-analyzer or manual review
 2. **Context** about the relationship (GC name, project, any prior disputes)
 3. **Purpose**: responding to an explanation, initial inquiry, follow-up, dispute
 

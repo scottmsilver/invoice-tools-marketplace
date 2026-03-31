@@ -8,7 +8,7 @@ Every month your GC sends a draw request — a PDF with a cover page, a detail s
 
 ## Skills
 
-### `/invoice:draw-analyzer`
+### `/invoice:invoice-analyzer`
 
 The main skill. Give it the draw PDF and your actuals spreadsheet, and it produces:
 
@@ -17,7 +17,7 @@ The main skill. Give it the draw PDF and your actuals spreadsheet, and it produc
 - Flags for budget overruns, missing COs, invoice typos, cost code mismatches, out-of-period charges, and missing documentation
 
 ```
-> /invoice:draw-analyzer
+> /invoice:invoice-analyzer
 
 Then point it at your files:
   data/feb/Draw Request.pdf
@@ -71,7 +71,7 @@ Turns audit findings into a plain-text email to your GC. Calibrates tone to seve
 ```
 > /invoice:email-drafter
 
-Run it after the draw-analyzer to draft your response.
+Run it after the invoice-analyzer to draft your response.
 ```
 
 ## Installation
@@ -87,7 +87,7 @@ Run it after the draw-analyzer to draft your response.
    pip install -r ~/.claude/plugins/marketplaces/invoice-tools/plugins/invoice/lib/requirements.txt
    ```
 
-3. Restart Claude Code. The skills will appear as `invoice:draw-analyzer`, `invoice:extractor`, etc.
+3. Restart Claude Code. The skills will appear as `invoice:invoice-analyzer`, `invoice:extractor`, etc.
 
 ## Project Setup
 
@@ -99,7 +99,7 @@ For best results, keep a `project-context.md` file alongside your draw PDFs with
 - Prior dispute history
 - Special billing rules
 
-The draw-analyzer will pick this up automatically. If it's not there, it extracts what it can from the draw itself.
+The invoice-analyzer will pick this up automatically. If it's not there, it extracts what it can from the draw itself.
 
 ## What Gets Flagged
 
