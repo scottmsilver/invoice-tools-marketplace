@@ -1,39 +1,22 @@
 ---
 name: matcher
-description: "Use when matching parent invoice line items to supporting documents in a construction draw request. Trigger when the user has a detail summary with line items and a set of supporting invoices that need to be cross-referenced, verified, and matched."
+description: "Match invoice line items to their supporting receipts/documents. Cross-reference amounts, vendor names, and invoice numbers to verify each charge has backup."
 ---
 
 # Invoice Line Matcher
 
 ## Purpose
 
-Match each line item on a GC's detail summary page to its corresponding supporting invoice in the draw package. Handle cases where descriptions don't match exactly, amounts differ slightly, or vendor names vary.
+Match each line item on a GC's summary to its corresponding supporting document. Handle cases where descriptions don't match exactly, amounts differ slightly, or vendor names vary.
 
-## Implementation
+## How It Works
 
-Use `lib.ValidationService`. It runs all verifications in parallel and supports two matching algorithms:
+Two matching strategies, applied in order:
 
-- **Greedy** (default): fast, local optimization — exact match on invoice totals, then fuzzy (2% tolerance), then line-item matching
-- **Bipartite** (optimal): builds a cost matrix and solves via Hungarian algorithm for globally optimal assignment. Enable with `USE_BIPARTITE_MATCHING=true` env var.
+1. **Greedy** (fast): exact match on invoice totals first, then fuzzy (±2% tolerance), then line-item matching
+2. **Bipartite** (optimal): builds a cost matrix and solves via Hungarian algorithm for globally optimal assignment when greedy produces poor results
 
-Both algorithms include AI-powered semantic validation to flag matches where amounts match but descriptions don't make sense.
-
-```python
-from lib.llm_service import LLMService
-from lib.validation_service import ValidationService
-
-llm = LLMService(provider="gemini", api_key=os.environ["GEMINI_API_KEY"])
-validation = ValidationService(llm)
-
-# parent_invoice and supporting_invoices are lib.Invoice objects
-verifications = validation.validate_invoice(
-    parent_invoice, supporting_invoices,
-    parent_pdf_bytes=pdf_bytes, parent_source_id=upload_id
-)
-
-for v in verifications:
-    print(f"{v.type.value}: {v.status.value} — {v.evidence}")
-```
+Both include semantic validation — flag matches where amounts match but descriptions don't make sense (e.g., an electrical invoice matched to a plumbing line item just because the totals happen to be close).
 
 ## Verification Types Run
 
@@ -52,7 +35,7 @@ The `validate_invoice` method runs these checks in parallel:
 - GC prefix on vendor names (e.g., "GC - Home Depot") means purchased by GC staff — match to "Home Depot"
 - Internal GC charges (labor, credits) have no supporting invoice by design — don't treat as errors
 - Credits always have a matching charge somewhere (same vendor, opposite sign)
-- Progress billings show cumulative amounts — the "amount due" column is the incremental draw
+- Progress billings show cumulative amounts — the "amount due" column is the incremental amount for this period
 
 ## Construction Synonym Pairs
 

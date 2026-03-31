@@ -1,6 +1,6 @@
 ---
 name: email-drafter
-description: "Use when generating an email to a contractor or GC based on invoice audit findings. Trigger when the user asks to 'write an email', 'draft a response', 'turn this into an email', or wants to communicate audit findings, questions, or disputes to their builder."
+description: "Draft an email to the contractor based on invoice audit findings. Use when the user wants to communicate questions, disputes, or corrections to their GC."
 ---
 
 # Email Draft Generator
@@ -47,11 +47,11 @@ For a **response to GC explanation**:
 2. Confirm the items that check out (bullet list if several)
 3. Ask about anything they didn't address
 4. Housekeeping items (typos, code fixes)
-5. Any open items from prior draws
+5. Any open items from prior invoices
 6. Close
 
-For an **initial inquiry** (first email about a new draw):
-1. Acknowledge receipt of the draw
+For an **initial inquiry** (first email about a new invoice):
+1. Acknowledge receipt of the invoice
 2. Note any math issues
 3. List the most important flags (budget overruns first)
 4. Housekeeping items

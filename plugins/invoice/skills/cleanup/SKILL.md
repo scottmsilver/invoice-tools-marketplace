@@ -1,34 +1,34 @@
 ---
 name: cleanup
-description: "Use when extracted invoice data has formatting issues, ambiguous amounts, or needs normalization. Trigger when processing raw OCR output, handling credits in parentheses, distinguishing subtotals from line items, cleaning up progress billing data, or normalizing vendor names and amounts from messy construction documents."
+description: "Normalize messy extracted invoice data: fix amounts, dates, vendor names, credit formatting, and progress billing math. Use after extraction when data needs cleanup."
 ---
 
 # LLM Data Cleanup
 
 ## Purpose
 
-Clean and normalize messy invoice data extracted from construction PDFs. Most of the heavy lifting (credit handling, void detection, line-item-vs-aggregation, timesheet rules) is already in `lib.LLMService.extract_invoice_data()`. This skill covers additional normalization that happens after extraction.
+Clean and normalize messy invoice data extracted from construction PDFs. This skill covers normalization that happens after extraction: progress billing math, vendor names, amounts, dates, and invoice numbers.
 
 ## When to Use
 
 Use this skill when extracted data still needs cleanup that the extraction prompt didn't handle:
 - Progress billing math needs verification
-- Vendor names need normalization across the draw
+- Vendor names need normalization across the invoice
 - Amounts, dates, or invoice numbers need format standardization
 
 ## Progress Billing Verification
 
-Progress billings show cumulative contract data. The correct draw amount is the **incremental** amount, not the cumulative total.
+Progress billings show cumulative contract data. The correct amount is the **incremental** amount for this period, not the cumulative total.
 
 ```
 Contract Amount: $50,000.00
 % Complete: 100%
 Amount Due: $50,000.00        ← NOT this
 Less Prior Requests: $42,000.00
-Due This Request: $8,000.00   ← THIS is what goes in the draw
+Due This Request: $8,000.00   ← THIS is the actual charge
 ```
 
-Always verify: `this_draw = total_due - prior_payments`. Flag if it doesn't check out.
+Always verify: `this_period = total_due - prior_payments`. Flag if it doesn't check out.
 
 ## Vendor Name Normalization
 

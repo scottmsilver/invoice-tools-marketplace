@@ -1,38 +1,21 @@
 ---
 name: boundary-detector
-description: "Use when a multi-page PDF contains multiple separate documents concatenated together. Trigger when processing a construction draw request PDF that has a cover page, detail summary, and multiple supporting invoices all in one file, or any PDF where separate documents need to be identified and split."
+description: "Split a multi-page PDF into its individual documents. Use when a PDF contains multiple invoices, receipts, or pay applications concatenated together."
 ---
 
 # Document Boundary Detector
 
 ## Purpose
 
-Detect where separate invoices start and end within a multi-page construction draw request PDF. A typical draw PDF contains 20-50 pages with 10-30 separate documents concatenated together.
+Detect where separate invoices start and end within a multi-page PDF. A typical contractor invoice PDF contains 20-50 pages with 10-30 separate documents concatenated together.
 
-## Implementation
+## How It Works
 
-Use `lib.LLMService.detect_document_boundaries()`. The lib handles the LLM prompt, vision model integration, page number remapping, gap filling, and JSON parsing with repair. It returns a list of `DocumentBoundary` objects.
+Read every page of the PDF and identify where each distinct document begins and ends. Return a list of document boundaries with page ranges, document types, and confidence levels.
 
-```python
-from lib.llm_service import LLMService
-from lib.pdf_extractor import PDFExtractor
+## Typical PDF Structure
 
-llm = LLMService(provider="gemini", api_key=os.environ["GEMINI_API_KEY"])
-
-with PDFExtractor(pdf_path) as pdf:
-    pages_text = pdf.extract_all_text()
-    pdf_bytes = open(pdf_path, "rb").read()
-
-    # Exclude cover page (1) and detail summary (2) from supporting doc detection
-    boundaries = llm.detect_document_boundaries(
-        pages_text, pdf_bytes=pdf_bytes, exclude_pages=[1, 2]
-    )
-
-    for b in boundaries:
-        print(f"Pages {b.pages}: {b.type.value} (confidence {b.confidence})")
-```
-
-## Typical Draw PDF Structure
+The structure varies, but a common pattern:
 
 ```
 Page 1:     Cover page (GC letterhead, total due)
@@ -43,6 +26,8 @@ Pages 6-7:  Supporting invoice #3
 ...
 Page N:     Labor detail sheet (internal GC document)
 ```
+
+Not every PDF will follow this layout. Work with whatever structure is present.
 
 ## Detection Signal Strength
 
@@ -64,7 +49,7 @@ Page N:     Labor detail sheet (internal GC document)
 
 ## Multi-Page Document Grouping
 
-Some supporting invoices span multiple pages. The lib handles this via its grouping prompt, but be aware of these common patterns:
+Some supporting invoices span multiple pages. Be aware of these common patterns:
 - Pay applications: invoice page + payment request page
 - Fireplace/hearth vendors: multiple pages of line items
 - Specialty contractors: invoice page + terms page
