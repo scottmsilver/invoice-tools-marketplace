@@ -82,25 +82,62 @@ Scan the provided path for files. Identify:
 
 #### First-Run Interview
 
-Ask these questions, grouped together in one message. Don't trickle them out one at a time. Frame them as: "Before I dig in, a few quick questions that'll help me audit this properly."
+Use the **AskUserQuestion** tool to ask these questions interactively. Group them into 1-2 AskUserQuestion calls (max 4 questions per call). Provide sensible options for each question so the user can pick from common answers rather than typing everything.
 
-**Must-ask (always):**
-1. What is the contracted Builder's Comp / markup rate? (e.g., 15%)
-2. What is the retention policy? (% held, release threshold, current status)
-3. Are there any vendors with special terms? (no markup, fixed-price contracts, T&M caps)
-4. What is the billing period policy? (monthly? is it normal for March-dated invoices to appear on a Feb draw?)
+**Call 1 — Core project details (always ask):**
 
-**Ask if not obvious from the invoice:**
-5. GC name and primary contact(s) (for the email drafter)
-6. Homeowner name(s) (for email sign-off)
+```
+AskUserQuestion({
+  questions: [
+    {
+      question: "What is the contracted Builder's Comp / markup rate?",
+      header: "Markup Rate",
+      options: [
+        {label: "15%", description: "Most common residential GC rate"},
+        {label: "12%", description: "Lower end for larger projects"},
+        {label: "10%", description: "Negotiated rate"},
+        {label: "18%", description: "Higher end, smaller GCs"}
+      ],
+      multiSelect: false
+    },
+    {
+      question: "What is the retention policy?",
+      header: "Retention",
+      options: [
+        {label: "10% until 75% complete", description: "Standard — 10% held, released at 75% project completion"},
+        {label: "10% until substantial", description: "10% held until substantial completion"},
+        {label: "5% until 50%", description: "Lower retention, earlier release"},
+        {label: "No retention", description: "Not part of this contract"}
+      ],
+      multiSelect: false
+    },
+    {
+      question: "Is it normal for this GC to include invoices dated after the draw period?",
+      header: "Billing Period",
+      options: [
+        {label: "Yes, normal", description: "They batch invoices as they come in, dates don't need to match"},
+        {label: "No, should match", description: "All invoices should be dated within the billing month"},
+        {label: "Not sure", description: "Haven't tracked this before"}
+      ],
+      multiSelect: false
+    },
+    {
+      question: "Any cost codes you're already watching or concerned about?",
+      header: "Watchlist",
+      options: [
+        {label: "Nothing specific", description: "No particular codes to flag"},
+        {label: "A few codes", description: "I have some I'm tracking"},
+        {label: "Several codes", description: "Multiple budget lines I'm watching"}
+      ],
+      multiSelect: false
+    }
+  ]
+})
+```
 
-**Ask if actuals spreadsheet is provided:**
-7. Has the budget been revised recently? Any pending change orders?
-8. Any cost codes you're already watching or concerned about?
+If the user says they're watching codes, ask a follow-up AskUserQuestion with the specific cost codes from the actuals spreadsheet as multiSelect options.
 
-**Ask if this is a later draw (Draw 5+):**
-9. Any open items or disputes from prior draws?
-10. Any vendors you've had issues with?
+**After answers received**, also extract GC name, contacts, and homeowner name from the invoice cover page (usually available without asking).
 
 After the user answers, **write `project-context.md`** in the working directory with all the answers, structured like this:
 
