@@ -18,7 +18,7 @@ Both outputs use the same tone calibration and writing rules.
 ## Input
 
 The skill expects:
-1. **Audit findings** — from the analyzer's XLSX report, narrative summary, `extracted.json`, `matching_results.json`, or any combination
+1. **Audit findings** — from the analyzer's XLSX report, narrative summary, `extracted.json`, `matching_results.json`, `price_check_results.json`, or any combination. If `price_check_results.json` exists, incorporate its findings: items flagged `above_market` or `significantly_above` deserve prominent mention in the insight summary; items `below_market` are positive signals worth noting briefly ("contractor discounts being passed through")
 2. **Context** about the relationship (GC name, project, any prior disputes) — check `project-context.md`
 3. **Purpose**: initial inquiry, response to GC explanation, follow-up, dispute
 

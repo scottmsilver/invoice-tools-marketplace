@@ -17,6 +17,51 @@ The path to `extracted.json` produced by `invoice:ingest`. The supporting docume
 
 Also read `project-context.md` if it exists, for project location (affects market rates) and any known vendor terms.
 
+Also check for `price_cache.json` in the working directory. This file caches previously verified prices so repeat items don't need re-searching. Load it at the start and write it back at the end with any new lookups.
+
+## Exhaustive Item-Level Checking
+
+Check at the **individual line item level**, not the document level. If a BFS invoice has 6 SKUs, check all 6 — don't just assess the invoice total. The goal is to verify every unit price where the data makes comparison possible.
+
+Priority order:
+1. **Items with SKUs or model numbers** — these are directly searchable. Always search.
+2. **Items with clear unit prices** ($/hr, $/piece, $/day) — compare to market rates.
+3. **Lump-sum items over $1,000** — assess overall reasonableness for the scope described.
+4. **Items under $50 with no SKU** — skip these unless the unit price looks obviously wrong.
+
+## Price Cache
+
+On first run, create `price_cache.json`. On subsequent runs, load it first and skip web searches for items already cached (unless the cache is older than 90 days).
+
+```json
+{
+  "cache_date": "2026-03-31",
+  "prices": {
+    "HD:047034123701": {
+      "description": "35\" X 100FT X-BOARD",
+      "verified_price": 39.97,
+      "source": "Home Depot website",
+      "date_checked": "2026-03-31"
+    },
+    "BFS:PWLVL117818": {
+      "description": "PW LVL 1-3/4X11-7/8X18 2.0E",
+      "verified_price": 158.00,
+      "source": "WebSearch retail price",
+      "date_checked": "2026-03-31"
+    },
+    "LABOR:framing:park_city_ut": {
+      "description": "Framing labor, Park City UT",
+      "range_low": 35.00,
+      "range_high": 55.00,
+      "source": "WebSearch (ZipRecruiter, Angi)",
+      "date_checked": "2026-03-31"
+    }
+  }
+}
+```
+
+Cache keys: use `VENDOR:SKU` for materials, `VENDOR:MODEL` for equipment, `LABOR:trade:location` for labor rates, `RENTAL:equipment_type:location` for rental rates.
+
 ## Output
 
 Write `price_check_results.json` to the working directory:
