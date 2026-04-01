@@ -123,3 +123,11 @@ For a **follow-up**:
 Project-specific details (GC name, contacts, homeowner name, project address, relationship tone, prior dispute history) should be stored in a `project-context.md` file in the working directory.
 
 If no project context file is found, ask the user for the GC's name and any relevant context before drafting.
+
+## File Output
+
+Always write both outputs to disk in the working directory in addition to displaying them:
+- Insight summary: `feb_draw_insight_summary.md` (or appropriate month prefix)
+- GC email: `feb_draw_email.md` (or appropriate month prefix)
+
+Use a version suffix (`_v2`, `_v3`) if prior versions exist. The user needs these as files, not just chat output.
