@@ -49,6 +49,20 @@ ELSE:
   Output: matching_results.json in the working directory
 ```
 
+### Price Check (cost reasonableness)
+
+```
+IF first run for this project OR user requests it:
+  Dispatch invoice:price-check as a SUB-AGENT via the Agent tool
+  Can run in PARALLEL with matcher and math verification
+  Input: path to extracted.json
+  Output: price_check_results.json in the working directory
+ELSE:
+  Skip — vendor rates don't change month to month
+```
+
+The price-check agent examines supporting document line items for labor rates, material unit prices, equipment rental rates, and contract-level pricing. It compares against market rates for the project's location.
+
 ### Everything else: INLINE
 
 Math verification, budget cross-reference, anomaly detection, and report generation always run inline in the orchestrator.
@@ -175,6 +189,10 @@ Read the actuals spreadsheet. For each cost code in this invoice:
 3. **Missing entries**: Check if any invoice charges are NOT in the actuals spreadsheet.
 4. **Trend analysis**: Identify codes where invoiced amount exceeds revised budget, or where original estimate was revised upward by more than 50%.
 
+### Step 6.5: Price Check (if dispatched)
+
+If `invoice:price-check` was dispatched, wait for `price_check_results.json`. Incorporate findings into the anomaly list and report. Items flagged `above_market` or `significantly_above` should appear in the Flags & Issues tab and in the narrative.
+
 ### Step 7: Generate Report
 
 Produce TWO outputs:
@@ -184,6 +202,7 @@ Produce TWO outputs:
 - **Line Items**: Every line item with columns: Supplier, Description, Amount, Invoice #, Date, Cost Code, Is Credit, Flags
 - **Budget Cross-Reference** (if actuals provided): Cost code, This Invoice, Prior Invoiced, Total, OG Budget, Revised Budget, Over Revised?, $ Over
 - **Math Verification**: Each check, expected value, actual value, pass/fail
+- **Price Check** (if run): Items checked, market range, assessment, notes
 - **Flags & Issues**: Every anomaly found, severity (Error/Warning/Info), description, affected item
 
 **2. A concise narrative summary** in the chat covering:
@@ -191,6 +210,7 @@ Produce TWO outputs:
 - Math errors found
 - Most important flags
 - Budget cross-reference findings (if actuals provided)
+- Price check findings (if run) — focus on items above market
 - Numbered questions for the GC
 - Recommendation: pay as-is, pay with exceptions, or dispute
 
