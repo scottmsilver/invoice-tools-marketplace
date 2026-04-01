@@ -193,6 +193,28 @@ Read the actuals spreadsheet. For each cost code in this invoice:
 
 If `invoice:price-check` was dispatched, wait for `price_check_results.json`. Incorporate findings into the anomaly list and report. Items flagged `above_market` or `significantly_above` should appear in the Flags & Issues tab and in the narrative.
 
+### Step 6.7: Extract Flagged Pages
+
+For every supporting document that has a Warning or Error-level flag (price overcharge, invoice number mismatch, missing itemization, budget overrun, or any issue the homeowner should see with their own eyes), extract the relevant pages from the source PDF into a standalone PDF.
+
+Use PyMuPDF to extract pages:
+```python
+import fitz, os
+os.makedirs("extracted_pages", exist_ok=True)
+src = fitz.open(source_pdf_path)
+out = fitz.open()
+out.insert_pdf(src, from_page=page_num-1, to_page=page_num-1)  # 0-indexed
+out.save(f"extracted_pages/{vendor}_{invoice_num}.pdf")
+```
+
+Name each file descriptively: `{Vendor}_{InvoiceNum}.pdf` (e.g., `Hearth_Home_303970.pdf`).
+
+For multi-page supporting docs (like the Arches pay request), extract all pages belonging to that document.
+
+The `extracted.json` has the page numbers for each supporting document in the `pages` field — use those directly. No need to re-detect boundaries.
+
+This gives the homeowner the actual source document for anything flagged, so they can verify findings and share specific pages with the GC.
+
 ### Step 7: Generate Report
 
 Produce TWO outputs:
@@ -204,6 +226,8 @@ Produce TWO outputs:
 - **Math Verification**: Each check, expected value, actual value, pass/fail
 - **Price Check** (if run): Items checked, market range, assessment, notes
 - **Flags & Issues**: Every anomaly found, severity (Error/Warning/Info), description, affected item
+
+**3. Extracted page PDFs** in the `extracted_pages/` directory for every flagged supporting document. Name: `{Vendor}_{InvoiceNum}.pdf`.
 
 **2. A concise narrative summary** in the chat covering:
 - Total amount and what it covers
