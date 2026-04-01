@@ -252,6 +252,38 @@ The `extracted.json` has the page numbers for each supporting document in the `p
 
 This gives the homeowner the actual source document for anything flagged, so they can verify findings and share specific pages with the GC.
 
+### Step 6.8: Consolidate Findings
+
+Before generating reports, write `audit_findings.md` — a single human-readable document that consolidates ALL findings from every source (math, matcher, price-check, budget). This is the master findings document that the email-drafter reads.
+
+Structure it as:
+
+```markdown
+# Audit Findings — [Invoice ID] [Date]
+
+## Math
+- [each check: pass/fail with detail]
+
+## Discrepancies (from matcher)
+- [each field mismatch: what GC says vs what doc says]
+
+## Price Check Flags
+- [each above_market or significantly_above item with the dollar comparison]
+- [e.g., "Mason Lite MFP44: GC billed $8,295, retail is $2,800-$3,500. $4,500-$5,500 potential overpay."]
+- [e.g., "Gas log components: $5,890 lump sum with no itemization. Typical range $2,000-$4,000."]
+
+## Budget Overruns
+- [each code over revised budget with $ amount and whether a CO exists]
+
+## Other Flags
+- [50% deposits, missing backup, out-of-period dates, credit patterns, retention changes]
+
+## Extracted Pages
+- [list each extracted PDF with the reason it was flagged]
+```
+
+**This step is critical.** The email-drafter reads `audit_findings.md` as its primary input. If a finding isn't in this file, it won't make it into the email. Every price-check flag, every matcher discrepancy, every budget overrun MUST appear here.
+
 ### Step 7: Generate Report
 
 Produce TWO outputs:

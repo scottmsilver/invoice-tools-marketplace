@@ -18,7 +18,7 @@ Both outputs use the same tone calibration and writing rules.
 ## Input
 
 The skill expects:
-1. **Audit findings** — from the analyzer's XLSX report, narrative summary, `extracted.json`, `matching_results.json`, `price_check_results.json`, or any combination. If `price_check_results.json` exists, incorporate its findings: items flagged `above_market` or `significantly_above` deserve prominent mention in the insight summary; items `below_market` are positive signals worth noting briefly ("contractor discounts being passed through")
+1. **Audit findings** — read `audit_findings.md` first. This is the consolidated findings document written by the analyzer and contains everything: math results, matcher discrepancies, price-check flags, budget overruns, and other anomalies. If `audit_findings.md` doesn't exist, fall back to reading the individual JSON files (`extracted.json`, `matching_results.json`, `price_check_results.json`). Every finding in `audit_findings.md` should be considered for inclusion — especially price-check flags (items above market with dollar comparisons) which are some of the most actionable findings for the homeowner
 2. **Context** about the relationship (GC name, project, any prior disputes) — check `project-context.md`
 3. **Purpose**: initial inquiry, response to GC explanation, follow-up, dispute
 
