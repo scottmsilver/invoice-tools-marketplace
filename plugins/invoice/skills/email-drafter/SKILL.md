@@ -124,10 +124,30 @@ Project-specific details (GC name, contacts, homeowner name, project address, re
 
 If no project context file is found, ask the user for the GC's name and any relevant context before drafting.
 
+## Referencing Supporting Documents
+
+If `extracted_pages/` exists in the working directory, check which flagged invoices have been extracted as standalone PDFs. Reference them by filename in both outputs.
+
+**In the insight summary:** When discussing a flagged document, note the extracted page:
+> "The Hearth & Home fireplace invoice is at `extracted_pages/Hearth___Home___SLC_303970.pdf` if you want to see the line items yourself."
+
+**In the GC email:** When asking about a specific invoice, reference it as an attachment:
+> "I've attached the Hearth & Home invoice (303970) for reference."
+
+After drafting the email, list the recommended attachments at the bottom:
+```
+Attachments:
+- Hearth___Home___SLC_303970.pdf (fireplace pricing question)
+- BFS_Group_LLC_78710505-00.pdf (invoice number correction)
+- Wheeler_CAT_None.pdf (need actual invoice)
+```
+
+This tells the homeowner exactly which extracted pages to attach when they send the email.
+
 ## File Output
 
 Always write both outputs to disk in the working directory in addition to displaying them:
-- Insight summary: `feb_draw_insight_summary.md` (or appropriate month prefix)
-- GC email: `feb_draw_email.md` (or appropriate month prefix)
+- Insight summary: `{month}_draw_insight_summary.md`
+- GC email: `{month}_draw_email.md`
 
 Use a version suffix (`_v2`, `_v3`) if prior versions exist. The user needs these as files, not just chat output.
